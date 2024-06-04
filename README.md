@@ -8,7 +8,7 @@ Helm Charts provided by Clonix 🚀
 To install the charts repository:
 
 ```bash
-$ helm repo add clonix https://helm.clonix.ar
+$ helm repo add clonix https://helm.nix.ar
 $ helm repo update
 ```
 
