@@ -16,6 +16,7 @@ jobs:
       matrix:
         kubernetes:
           - '1.25'
+          - '1.30'
 
     name: Test with Kubernetes v${{ matrix.kubernetes }}
 
