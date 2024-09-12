@@ -10,14 +10,12 @@ jobs:
   release:
     if: "!contains(github.event.head_commit.message, 'skip ci')"
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20
 
     strategy:
       matrix:
         kubernetes:
-          - '1.20.10'
-          - '1.21.4'
-          - '1.22.1'
+          - '1.25'
 
     name: Test with Kubernetes v${{ matrix.kubernetes }}
 
@@ -29,7 +27,7 @@ jobs:
       - uses: manusa/actions-setup-minikube@v2.4.3
         name: Setup Minikube
         with:
-          minikube version: v1.17.0
+          minikube version: v1.33.1
           kubernetes version: "v${{ matrix.kubernetes }}"
           github token: "${{ secrets.GITHUB_TOKEN }}"
           driver: docker
