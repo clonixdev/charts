@@ -18,7 +18,7 @@ Containerize & Orchestrate your Laravel application with this simple Helm chart.
 
 ## 🛑 Requirements
 
-- Kubernetes v1.22+
+- Kubernetes v1.25+
 
 ## 🚀 Installation
 

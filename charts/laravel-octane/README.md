@@ -17,7 +17,7 @@ Containerize & Orchestrate your Octane-based Laravel application with this simpl
 
 ## 🛑 Requirements
 
-- Kubernetes v1.22+
+- Kubernetes v1.25+
 
 ## 🚀 Installation
 
