@@ -7,7 +7,7 @@ on:
 
 jobs:
   release:
-    runs-on: ubuntu-20
+    runs-on: ubuntu-20.04
 
     name: Release Charts
 
@@ -22,12 +22,12 @@ jobs:
           git config --local user.name "github-actions[bot]"
 
       - name: Install Helm
-        uses: azure/setup-helm@v1.1
-        with:
-          version: v3.4.0
-
+        uses: azure/setup-helm@v4
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          
       - name: Release Chart
-        uses: helm/chart-releaser-action@v1.4.0
+        uses: helm/chart-releaser-action@v1.6.0
         with:
           config: chart-releaser.yaml
         env:
