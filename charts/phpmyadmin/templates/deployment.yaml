@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "phpmyadmin.fullname" . }}
+  labels:
+    {{- include "phpmyadmin.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  {{- with .Values.strategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "phpmyadmin.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "phpmyadmin.selectorLabels" . | nindent 8 }}
+    spec:
+      volumes:
+        {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      serviceAccountName: {{ include "phpmyadmin.serviceAccountName" . }}
+
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+
+      {{- with .Values.extraInitContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      containers:
+        {{- with .Values.extraContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        - name: phpmyadmin
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.app.image.pullPolicy }}
+          volumeMounts:
+            {{- with .Values.app.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          {{- if .Values.app.healthcheck.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.app.healthcheck.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.app.healthcheck.period }}
+            periodSeconds: {{ .Values.app.healthcheck.period }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.app.healthcheck.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.app.healthcheck.period }}
+            periodSeconds: {{ .Values.app.healthcheck.period }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.app.resources | nindent 12 }}
+          {{- with .Values.app.extraEnv }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if .Values.db.host }}
+          env:
+            - name: PMA_HOST
+              value: {{ .Values.db.host | quote }}
+            - name: PMA_PORT
+              value: {{ .Values.db.port | quote }}
+            {{- if .Values.db.user }}
+            - name: PMA_USER
+              value: {{ .Values.db.user | quote }}
+            {{- end }}
+            {{- if .Values.db.password }}
+            - name: PMA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "phpmyadmin.fullname" . }}-db-secret
+                  key: password
+            {{- end }}
+            {{- if .Values.db.name }}
+            - name: PMA_DB
+              value: {{ .Values.db.name | quote }}
+            {{- end }}
+            {{- if .Values.db.arbitrary }}
+            - name: PMA_ARBITRARY
+              value: "1"
+            {{- end }}
+          {{- end }}
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,165 @@
+# Default values for phpmyadmin.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+strategy: {}
+  # type: RollingUpdate
+  # rollingUpdate:
+  #   maxSurge: 0
+  #   maxUnavailable: 1
+
+nameOverride: ""
+fullnameOverride: ""
+imagePullSecrets: []
+
+# Configure phpMyAdmin container.
+app:
+  image:
+    repository: phpmyadmin
+    pullPolicy: IfNotPresent
+    tag: "latest"
+
+  resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+  # Extra environment variables for the app container.
+  extraEnv: []
+  # - name: PMA_ARBITRARY
+  #   value: "1"
+
+  # Extra volumes to mount on the container.
+  extraVolumeMounts: []
+  # - name: some-folder
+  #   mountPath: /some/path
+
+  # Configure the HTTP healthcheck for the phpMyAdmin app.
+  # If enabled, ensure the given path in the app returns a 200 OK when accessed.
+  healthcheck:
+    enabled: true
+    period: 5
+    path: /
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+rbac:
+  create: false
+  rules: []
+  #  - apiGroups:
+  #      - ""
+  #    resources:
+  #      - pods
+  #    verbs:
+  #      - get
+  #      - list
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+  annotations: {}
+  # Set annotations for the service.
+
+ingress:
+  enabled: true
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  # class: "nginx"
+  hosts:
+    - host: phpmyadmin.local
+      paths:
+        - /
+  tls: []
+  # - secretName: phpmyadmin-tls
+  #   hosts:
+  #     - phpmyadmin.local
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+  behavior: {}
+  # Set the behavior for the autoscaler.
+  # https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#support-for-configurable-scaling-behavior
+
+  # Custom Metrics will be appended to the default CPU/Memory resources (if they're enabled).
+  customMetrics: []
+  # - type: Pods
+  #   pods:
+  #     metric:
+  #       name: phpfpm_process_utilization
+  #     target:
+  #       type: AverageValue
+  #       averageValue: "50"
+
+pdb:
+  enabled: false
+  minAvailable: 1
+  # maxUnavailable: 25%
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Extra volumes to attach to the deployment.
+extraVolumes: []
+# - name: some-folder
+#   emptyDir: {}
+
+# Extra containers to run in the deployment.
+extraContainers: []
+
+# Extra init containers to run in the deployment.
+extraInitContainers: []
+
+# Database configuration for phpMyAdmin
+db:
+  # MySQL/MariaDB host
+  host: ""
+  # MySQL/MariaDB port
+  port: 3306
+  # MySQL/MariaDB user
+  user: ""
+  # MySQL/MariaDB password
+  password: ""
+  # Database to select (optional)
+  name: ""
+
+  # If set to true, allows connecting to arbitrary servers
+  arbitrary: false
